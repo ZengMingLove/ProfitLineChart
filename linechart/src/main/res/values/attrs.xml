@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ProfitLineChart">
+        <attr name="lineColor" format="color"/>
+        <attr name="spotColor" format="color"/>
+        <attr name="backgroundColor" format="color"/>
+        <attr name="profitSize" format="dimension"/>
+        <attr name="dateSize" format="dimension"/>
+        <attr name="isClick" format="boolean"/>
+    </declare-styleable>
+</resources>
