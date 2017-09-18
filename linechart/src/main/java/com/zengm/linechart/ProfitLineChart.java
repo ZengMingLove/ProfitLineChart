@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
+import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
@@ -17,6 +18,7 @@ import android.view.ViewConfiguration;
 import android.widget.Scroller;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 创建人： zengming on 2017/9/14.
@@ -58,8 +60,8 @@ public class ProfitLineChart extends View {
     private Paint circlePaint;  //圆点画笔
 
     private int selected; // 选中的位置
-    private ArrayList<ProfitBean> data = new ArrayList<>(); // 源数据
-    private ArrayList<PointF> points = new ArrayList<>(); //折线拐点的集合
+    private List<ProfitBean> data = new ArrayList<>(); // 源数据
+    private List<PointF> points = new ArrayList<>(); //折线拐点的集合
     // 源数据中的最高和最低收益
     private double maxProfit;
     private double minProfit;
@@ -67,6 +69,7 @@ public class ProfitLineChart extends View {
     private VelocityTracker velocityTracker;
     private Scroller scroller;
     private ViewConfiguration viewConfiguration;
+    private ViewPager viewPager; // 解决嵌套ViewPager不能滑动的问题
 
     public ProfitLineChart(Context context) {
         super(context, null);
@@ -81,6 +84,10 @@ public class ProfitLineChart extends View {
     public ProfitLineChart(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs);
+    }
+
+    public void setmViewPager(ViewPager viewPager) {
+        this.viewPager = viewPager;
     }
 
     private void init(Context context, AttributeSet attrs) {
@@ -108,16 +115,16 @@ public class ProfitLineChart extends View {
      *
      * @param data
      */
-    public void setData(ArrayList<ProfitBean> data) {
+    public void setData(List<ProfitBean> data) {
         setData(data, null, -1);
     }
-    public void setData(ArrayList<ProfitBean> data, int selected) {
+    public void setData(List<ProfitBean> data, int selected) {
         setData(data, null, selected);
     }
-    public void setData(ArrayList<ProfitBean> data, OnSelectListener listener) {
+    public void setData(List<ProfitBean> data, OnSelectListener listener) {
         setData(data, listener, -1);
     }
-    public void setData(ArrayList<ProfitBean> data, OnSelectListener listener, int selected) {
+    public void setData(List<ProfitBean> data, OnSelectListener listener, int selected) {
         if (data == null || data.isEmpty()) {
             return;
         }
@@ -395,6 +402,47 @@ public class ProfitLineChart extends View {
             }
         }
         canvas.restore();
+    }
+
+    // 分别记录上次滑动的坐标
+    private int lastX = 0;
+    private int lastY = 0;
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        int x = (int) ev.getX();
+        int y = (int) ev.getY();
+
+        if (viewPager == null) {
+            return super.dispatchTouchEvent(ev);
+        }
+        switch (ev.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                Log.e(TAG,"----------mLastX="+lastX+"---------------mLastY="+lastY);
+                // 告诉父View，不直接调用父View的onInterceptTouchEvent()方法，直接将方法分发给子View
+                viewPager.requestDisallowInterceptTouchEvent(true);
+                break;
+            case MotionEvent.ACTION_MOVE:
+                int dealtaX = x - lastX;
+                int dealtaY = y - lastY;
+                Log.e(TAG,"----------dealtaX=" + dealtaX+"---------------dealtaY="+dealtaY + "---------------getScrollX=" + getScrollX() +
+                        "-----viewWidth = " + viewWidth + "-----screenWidth = " + screenWidth);
+                if (dealtaX > 0 && getScrollX() == 0) {
+                    viewPager.requestDisallowInterceptTouchEvent(false);
+                }
+
+                if (dealtaX < 0 && getScrollX() == (viewWidth - screenWidth)) {
+                    viewPager.requestDisallowInterceptTouchEvent(false);
+                }
+                break;
+            case MotionEvent.ACTION_UP:
+                break;
+            default:
+                break;
+        }
+
+        lastX = x;
+        lastY = y;
+        return super.dispatchTouchEvent(ev);
     }
 
     // 分别记录上次滑动的坐标

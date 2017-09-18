@@ -1,23 +1,26 @@
 package com.profitlinechart.demo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.profitlinechart.demo.viewpager.ViewPagerActivity;
 import com.zengm.linechart.ProfitBean;
 import com.zengm.linechart.ProfitLineChart;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private ProfitLineChart profitLineChart;
-    private ArrayList<ProfitBean> data;
-    private Button btn01, btn02, btn03, btn04;
+    private List<ProfitBean> data;
+    private Button btn01, btn02, btn03, btn04, btn05;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,11 +44,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btn02 = (Button) findViewById(R.id.btn_02);
         btn03 = (Button) findViewById(R.id.btn_03);
         btn04 = (Button) findViewById(R.id.btn_04);
+        btn05 = (Button) findViewById(R.id.btn_05);
 
         btn01.setOnClickListener(this);
         btn02.setOnClickListener(this);
         btn03.setOnClickListener(this);
         btn04.setOnClickListener(this);
+        btn05.setOnClickListener(this);
     }
 
     private void setData(int count) {
@@ -77,6 +82,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btn_04:
                 setData(31);
                 profitLineChart.setData(data, data.size()-2);
+                break;
+            case R.id.btn_05:
+                Intent intent = new Intent(MainActivity.this, ViewPagerActivity.class);
+                startActivity(intent);
                 break;
             default:
                 break;

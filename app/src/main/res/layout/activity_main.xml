@@ -33,6 +33,12 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="30"/>
+        <Button
+            android:id="@+id/btn_05"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="跳转"/>
     </LinearLayout>
 
     <com.zengm.linechart.ProfitLineChart
