@@ -57,6 +57,7 @@ public class ProfitLineChart extends View {
     private Paint textPaint;    //文字画笔
     private Paint circlePaint;  //圆点画笔
 
+    private int selected; // 选中的位置
     private ArrayList<ProfitBean> data = new ArrayList<>(); // 源数据
     private ArrayList<PointF> points = new ArrayList<>(); //折线拐点的集合
     // 源数据中的最高和最低收益
@@ -108,12 +109,19 @@ public class ProfitLineChart extends View {
      * @param data
      */
     public void setData(ArrayList<ProfitBean> data) {
-        setData(data, null);
+        setData(data, null, -1);
+    }
+    public void setData(ArrayList<ProfitBean> data, int selected) {
+        setData(data, null, selected);
     }
     public void setData(ArrayList<ProfitBean> data, OnSelectListener listener) {
+        setData(data, listener, -1);
+    }
+    public void setData(ArrayList<ProfitBean> data, OnSelectListener listener, int selected) {
         if (data == null || data.isEmpty()) {
             return;
         }
+        this.selected = selected;
         this.data = data;
         this.listener = listener;
         points.clear();
@@ -141,9 +149,6 @@ public class ProfitLineChart extends View {
         profitSize = profitSize == 0 ? (int) dp2pxF(context, defProfitSize) : profitSize;
         dateSize = dateSize == 0 ? (int) dp2pxF(context, defDateSize) : dateSize;
         Log.e(TAG, "profitSize = " + profitSize + "   dateSize = " + dateSize);
-//        profitSize = (int) sp2pxF(context, profitSize);
-//        dateSize = (int) sp2pxF(context, dateSize);
-//        Log.e(TAG, "profitSize = " + profitSize + "   dateSize = " + dateSize);
 
         Log.e(TAG, "mViewHeight = " + mViewHeight + "   -lineInterval" + lineInterval);
     }
@@ -264,7 +269,7 @@ public class ProfitLineChart extends View {
             String date = data.get(i).getDate();
             centerX = lineInterval / 2 + (i * lineInterval);
 
-            if (isClick && data.get(i).isSelected()) {
+            if (isClick && selected == i) {
                 textPaint.setTextSize(dateSize + 1f); //字体放大一丢丢
                 textPaint.setColor(Color.BLACK);
                 Paint.FontMetrics fm1 = textPaint.getFontMetrics();
@@ -345,7 +350,7 @@ public class ProfitLineChart extends View {
             x = points.get(i).x;
             y = points.get(i).y;
 
-            if (isClick && data.get(i).isSelected()) {
+            if (isClick && selected == i) {
                 // 先画一个颜色与背景颜色相同的实心圆覆盖掉折线拐点
                 circlePaint.setStyle(Paint.Style.FILL_AND_STROKE);
                 circlePaint.setColor(backgroundColor);
@@ -377,7 +382,7 @@ public class ProfitLineChart extends View {
             centerX = points.get(i).x;
             centerY = points.get(i).y - dp2pxF(getContext(), 15);
 
-            if (isClick && data.get(i).isSelected()) {
+            if (isClick && selected == i) {
                 textPaint.setTextSize(profitSize + 2); //字体放大一丢丢
                 textPaint.setColor(spotColor);
                 Paint.FontMetrics fm = textPaint.getFontMetrics();
@@ -436,7 +441,8 @@ public class ProfitLineChart extends View {
                     invalidate();
                 }
 
-                Log.e(TAG, "mDownX = " + mDownX + "  mDownY = " + mDownY + "\n" + "x = " + x + "  y = " + y + "\n" + "getScrollX = " + getScrollX());
+                Log.e(TAG, "mDownX = " + mDownX + "  mDownY = " + mDownY + "\n" +
+                        "x = " + x + "  y = " + y + "\n" + "getScrollX = " + getScrollX());
                 // 判断手指抬起的点的坐标与按下的坐标是否一致 (在某个范围内)
 //                if (isClick && mDownX == x && mDownY == y) {
                 if (isClick && Math.abs(mDownX - x) < 20 && Math.abs(mDownY - y) < 20) {
@@ -459,20 +465,15 @@ public class ProfitLineChart extends View {
     /**
      * 计算点击事件位于那个区域
      * @param clickX   点击位置相对于view的最左边的距离
-     * @param clickY   点击位置的Y坐标
+     * @param clickY   点击位置相对于view的最上边的距离
      */
     private void calculatePosition(int clickX, int clickY) {
         if (clickY > bottomPadding * 1.5) {
             int position = clickX / lineInterval;
             Log.e(TAG, "position = " + position);
 
-            for (int i = 0; i < data.size(); i++) {
-                if (i == position) {
-                    data.get(i).setSelected(true);
-                } else {
-                    data.get(i).setSelected(false);
-                }
-            }
+            selected = position; // 将当前点击位置的值赋给选中位置
+
             invalidate();
 
             // 点击事件回调
