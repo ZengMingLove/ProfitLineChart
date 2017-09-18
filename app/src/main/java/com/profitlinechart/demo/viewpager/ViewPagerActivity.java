@@ -35,6 +35,7 @@ public class ViewPagerActivity extends FragmentActivity {
         mFragments.add(new Fragment01());
         mFragments.add(new Fragment02());
         mFragments.add(new Fragment03());
+        mFragments.add(new FragmentConstraint());
 
         myViewPagerAdapter = new MyViewPagerAdapter(getSupportFragmentManager(),mFragments);
     }
@@ -44,6 +45,7 @@ public class ViewPagerActivity extends FragmentActivity {
 
         viewPager.setAdapter(myViewPagerAdapter);
         viewPager.setCurrentItem(0);
+        viewPager.setOffscreenPageLimit(4);
     }
 
 }
